@@ -1,0 +1,43 @@
+---
+FROM python:3.6.8 AS builder
+
+COPY requirements.txt .
+
+RUN pip install --user -r requirements.txt
+
+FROM python:3.6.8-slim
+
+WORKDIR /app
+
+COPY --from=builder /root/.local/ /root/.local
+
+COPY . /app
+
+RUN groupadd -g 2000 app && useradd -m -u 2001 -g app app
+
+USER app
+
+EXPOSE 8000
+
+ENV PATH=/root/.local/:$PATH
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+WORKDIR /app
+
+COPY --from=builder /root/.local/ /root/.local
+
+COPY . /app
+
+RUN groupadd -g 2000 app && useradd -m -u 2001 -g app app
+
+USER app
+
+EXPOSE 8000
+
+ENV PATH=/root/.local/:$PATH
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+...
